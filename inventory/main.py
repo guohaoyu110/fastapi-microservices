@@ -5,12 +5,12 @@ from redis_om import get_redis_connection, HashModel
 app = FastAPI()
 
 app.add_middleware(
-    CORSMiddleware,
+    CORSMiddleware, # prevent the browser problem 
     allow_origins=['http://localhost:3000'],
     allow_methods=['*'],
     allow_headers=['*']
 )
-
+# this should be a different database 
 redis = get_redis_connection(
     host="redis-11844.c135.eu-central-1-1.ec2.cloud.redislabs.com",
     port=11844,
@@ -18,7 +18,8 @@ redis = get_redis_connection(
     decode_responses=True
 )
 
-
+# from redis_om import get_redis_connection, HashModel
+# use the HashModel to create a database and store the data in it .
 class Product(HashModel):
     name: str
     price: float
@@ -27,7 +28,7 @@ class Product(HashModel):
     class Meta:
         database = redis
 
-
+# get requests 
 @app.get('/products')
 def all():
     return [format(pk) for pk in Product.all_pks()]
@@ -47,7 +48,7 @@ def format(pk: str):
 @app.post('/products')
 def create(product: Product):
     return product.save()
-
+ 
 
 @app.get('/products/{pk}')
 def get(pk: str):
@@ -57,3 +58,9 @@ def get(pk: str):
 @app.delete('/products/{pk}')
 def delete(pk: str):
     return Product.delete(pk)
+
+# create a database and store the data in it . 
+# @app.get("/")
+# async def root():
+#     return {"message": "Hello World"}
+

@@ -14,7 +14,7 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-# This should be a different database
+# This should be a different redis database
 redis = get_redis_connection(
     host="redis-11844.c135.eu-central-1-1.ec2.cloud.redislabs.com",
     port=11844,
@@ -39,12 +39,14 @@ class Order(HashModel):
 def get(pk: str):
     return Order.get(pk)
 
-
+# fastapi supports async requests and async functions and i will get the body of that requests by awaiting json 
 @app.post('/orders')
 async def create(request: Request, background_tasks: BackgroundTasks):  # id, quantity
     body = await request.json()
 
     req = requests.get('http://localhost:8000/products/%s' % body['id'])
+    # parse the id of the product  
+    # return req.json() 
     product = req.json()
 
     order = Order(
